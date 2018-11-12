@@ -53,7 +53,7 @@ public class IP_RnW_Json_HW {
 
                 //Initialize the JSON object
                 JSONObject jsonObject = new JSONObject(readUrlResponse);
-/* !!!!!!!!!!*/ JSONArray jsonCountryArray = jsonObject.getJSONArray("country"); //??????????? THERE IS NO KEY IN THE RESPONSE Ex: http://ip-api.com/json/184.168.221.104
+/* !!!!!!!!!!*/ JSONArray jsonCountryArray = jsonObject.getJSONArray("????"); //??? THERE IS NO KEY IN THE RESPONSE Ex: http://ip-api.com/json/184.168.221.104
 
                 for(int j = 0 ; j < jsonCountryArray.length() ; j++){
                     countryList.add(jsonCountryArray.getJSONObject(j).getString("country"));
