@@ -1,53 +1,109 @@
-import java.io.IOException;
-//import java.net.MalformedURLException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-//import static java.lang.System.*;
-
-// All the string inside "" are objects that have own methods.
 
 public class AppStream1 {
-
+    static String dataFromUrl;
     public static void main(String[] args) {
-// HW 1) display the result : COUNTRY "United States".
-        final String ADDRESS = "http://ip-api.com/scv"; //// Data source. Java will se this as a file.
         String ip;
-        Scanner keyboard = new Scanner(System.in);
-        System.out.println("Enter IP: ");
-        ip = keyboard.next();
+        URL url;
 
-        URL u;
+
+        //Connect the files.
+        File IPsfile = new File("IP.txt");
+        File COUNTRYfile = new File("COUNTRY.txt");
+
+        //request API
+        final String ADDRESS = "http://ip-api.com/json";
 
         try {
+            url = new URL(ADDRESS + "/" + ip); // INITIALIZE IP
 
-            u = new URL(ADDRESS + "/" + ip);
-            Scanner in  = new Scanner(u.openStream());
-            String data = in.nextLine();
+            Scanner readFromURL = new Scanner(url.openStream());
 
+            dataFromUrl = readFromURL.nextLine();
             int commas = 0;
-
-            for(int index = 0; index < data.length(); index++){
-                if (data.charAt(index) == ','){
+            for (int index = 0; index < dataFromUrl.length(); index++) {
+                if (dataFromUrl.charAt(index) == ',') {
                     commas++;
                 }
-                if(commas==1) {
-                    System.out.println(data.charAt(index));
+                if (commas == 1 && dataFromUrl.charAt(index) != ',') {
+                    writeToFile("COUNTRY.txt");
                 }
             }
 
-        } catch (IOException e) {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONObject myResponse = jsonObject.getJSONObject("MyResponse");
+            JSONArray tsmresponse = (JSONArray) myResponse.get("listTsm");
 
+            ArrayList<String> list = new ArrayList<String>();
+
+            for(int i=0; i<tsmresponse.length(); i++){
+                list.add(tsmresponse.getJSONObject(i).getString("name"));
+            }
+
+            System.out.println(list);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void readFromFile(String file_name) {
+
+        String line;
+
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(file_name));
+
+            if (in.readLine() == null) {
+                System.out.println("\n!!! There are NO products in the DB... !!!\n");
+
+            } else {
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+
+            in.close();
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+
+    private static void writeToFile(String file_name) {
+
+        try {
+
+            FileWriter fileWriter = new FileWriter(file_name, true);
+            fileWriter.write(dataFromUrl);
+            fileWriter.close();
+
+        } catch (IOException e) {
+
+            System.err.println("CANNOT SAVE TO COUNTRY.TXT");
+
+        }
 
     }
 
-}
 
 //HW JSON/XML
 //github.com/toddmotto/public-apis
+
+
+
     /* 2 example
        String message = "Hello String Data Type! String is a Class in Java";
 
@@ -69,3 +125,5 @@ public class AppStream1 {
             System.out.println( "COST: 75 lei");
         }
         */
+
+}
