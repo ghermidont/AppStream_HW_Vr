@@ -1,11 +1,5 @@
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -13,28 +7,23 @@ import java.util.Scanner;
 
 public class IP_RnW_Json_HW {
 
-    public static void main(String[] args) throws MalformedURLException {
-        String ip;
-        InputStream url;
-        String dataFromUrl;
-        final String ADDRESS = "http://ip-api.com/json";
+    private static final String ADDRESS = "http://ip-api.com/json";
 
+    public static void main(String[] args) throws IOException {
 
+        BufferedWriter bw = new BufferedWriter(new FileWriter("COUNTRY.txt"));
+        BufferedReader br = new BufferedReader(new FileReader("IP.txt"));
         //Initialize the "ipList" ArrayList
-        ArrayList<String> ipList = new ArrayList<String>();
+        ArrayList<String> ipList = new ArrayList<>();
         //Initialize the "countryList" ArrayList
-        ArrayList<String> countryList = new ArrayList<String>();
+        ArrayList<String> countryList = new ArrayList<>();
 
         // Read from IP.txt file.
         try {
-            BufferedReader br = null;
-            br = new BufferedReader(new FileReader("IP.txt"));
-
             //Add content to the "ipList" ArrayList
             String line;
             while ((line = br.readLine()) != null) {
                 ipList.add(line);
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,34 +31,30 @@ public class IP_RnW_Json_HW {
 
         //Parse the JSON response and add "country" to countryList ArrayList.
         try {
-
             for (int i = 0; i < ipList.size(); i++) {
-
                 // store the IP s from the IP.txt file to a variable
-                ip = ipList.get(i);
+                String ip = ipList.get(i);
 
                 //Extract the response from the URL
-                String readUrlResponse = new Scanner(new URL(ADDRESS + "/" + ip).openStream(), StandardCharsets.UTF_8).next();
+                String readUrlResponse = new Scanner(new URL(ADDRESS + "/" + ip).openStream(), StandardCharsets.UTF_8).nextLine();
 
                 //Initialize the JSON object
                 JSONObject jsonObject = new JSONObject(readUrlResponse);
-/* !!!!!!!!!!*/ JSONArray jsonCountryArray = jsonObject.getJSONArray("????"); //??? THERE IS NO KEY IN THE RESPONSE Ex: http://ip-api.com/json/184.168.221.104
+                Object countryName = jsonObject.get("country");
 
-                for(int j = 0 ; j < jsonCountryArray.length() ; j++){
-                    countryList.add(jsonCountryArray.getJSONObject(j).getString("country"));
-                }
+                //Add country names tot the "countryName" ArrayList
+                countryList.add("IP: " + ip + " is from " + countryName + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        //See the content of the countryList ArrayList
-        String countryline;
-        for (int n = 0; n < countryList.size(); n++) {
-            countryline = countryList.get(n);
-
-            System.out.println(countryline);
+        //Extract county names from the countryList ArrayList
+        for (String countryNameFromArray : countryList){
+        //Write to COUNTRY.txt
+          bw.write(countryNameFromArray);
         }
+        bw.close();
 
     }
 
